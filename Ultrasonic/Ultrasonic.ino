@@ -1,3 +1,5 @@
+#define sanitizerDelay 0.5 //in seconds 
+
 const int trigPin = 9;
 const int echoPin = 10;
 const byte motorpin = 8;
@@ -26,7 +28,7 @@ void loop() {
   if (distance <= 5) {
     digitalWrite(motorpin, HIGH);
     Serial.println("HIGH");
-    delay(500);
+    delay(sanitizerDelay*1000);
     digitalWrite(motorpin, LOW);
   }
   delay(100);
