@@ -6,19 +6,19 @@ const byte motorpin = 8;
 bool flag = true;
 float duration, distance;
 const int raspiPin = 5;
-const int buzzerPin = 6;
+//const int buzzerPin = 6;
 
 void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   pinMode(motorpin, OUTPUT);
-  pinMode(raspiPin, INPUT);
-  pinMode(buzzerPin, OUTPUT);
+  //pinMode(raspiPin, INPUT);
+  //pinMode(buzzerPin, OUTPUT);
   Serial.begin(9600);
 }
 
 void loop() {
-
+  /*
   if(digitalRead(raspiPin)==HIGH)
   {
     digitalWrite(buzzerPin,HIGH);
@@ -26,7 +26,7 @@ void loop() {
   else{
     digitalWrite(buzzerPin,LOW);
   }
-  
+  */
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
