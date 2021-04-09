@@ -1,8 +1,8 @@
-import LCD_buzzer as lcd 
+from led_buzzer import LEDBuzzer
 import os
 # os.environ['OPENCV_IO_MAX_IMAGE_PIXELS']=str(2**64)
 import cv2 
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 from pyzbar import pyzbar
 import datetime
 import time
@@ -18,6 +18,8 @@ import numpy as np
 import pyrebase
 import math
 
+#intialization
+buzz = LEDBuzzer()
 cred = credentials.Certificate('python-firebase-upload-firebase-adminsdk-rmqdn-c62596b24a.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
@@ -61,20 +63,20 @@ def upload(time,enr,temp):
 		})
 
 
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BOARD)
-led1g = 29
-led1r = 31
-led2g = 19
-led2r = 21
-led3g = 11
-led3r = 13
-GPIO.setup(led1r,GPIO.OUT)
-GPIO.setup(led1g,GPIO.OUT)
-GPIO.setup(led2r,GPIO.OUT)
-GPIO.setup(led2g,GPIO.OUT)
-GPIO.setup(led3r,GPIO.OUT)
-GPIO.setup(led3g,GPIO.OUT)
+# GPIO.setwarnings(False)
+# GPIO.setmode(GPIO.BOARD)
+# led1g = 29
+# led1r = 31
+# led2g = 19
+# led2r = 21
+# led3g = 11
+# led3r = 13
+# GPIO.setup(led1r,GPIO.OUT)
+# GPIO.setup(led1g,GPIO.OUT)
+# GPIO.setup(led2r,GPIO.OUT)
+# GPIO.setup(led2g,GPIO.OUT)
+# GPIO.setup(led3r,GPIO.OUT)
+# GPIO.setup(led3g,GPIO.OUT)
 
 # Barcode Detection
 # import the necessary packages
@@ -86,15 +88,19 @@ sensor = MLX90614(bus, address=0x5A)
 greetings=["Have a great Day!","Have a Wonderful Day!","Welcome to PICT!","Hope to see you again!","Hello and Welcome!"]
 name=''
 
+#TODO
+# 1. Put the code in this infinte loop in a function -> call that funciton in main
+# 2. remove all the global variables and make the code more object oriented
 
 while True:
-    GPIO.output(led1r,GPIO.LOW)
-    GPIO.output(led1g,GPIO.LOW)
-    GPIO.output(led2r,GPIO.LOW)
-    GPIO.output(led2g,GPIO.LOW)
-    GPIO.output(led3r,GPIO.LOW)
-    GPIO.output(led3g,GPIO.LOW)
-    GPIO.output(12,GPIO.HIGH)
+    # GPIO.output(led1r,GPIO.LOW)
+    # GPIO.output(led1g,GPIO.LOW)
+    # GPIO.output(led2r,GPIO.LOW)
+    # GPIO.output(led2g,GPIO.LOW)
+    # GPIO.output(led3r,GPIO.LOW)
+    # GPIO.output(led3g,GPIO.LOW)
+    # GPIO.output(12,GPIO.HIGH)
+    buzz.set_all_low()
     barcode_text=""
     # 0 indicates that webcam associated with device
     # 1,2 can be used for external webcam
@@ -115,8 +121,8 @@ while True:
         cv2.imshow('Barcode reader', frame)
         if(len(barcode_text)==3 or len(barcode_text)==6 or len(barcode_text)==11 or len(barcode_text)==5 or len(barcode_text)==4 or len(barcode_text)==1 or len(barcode_text)==2):
             #print("1")
-            GPIO.output(led1g,GPIO.HIGH)
-            lcd.write_msg("barcode detected")
+            #GPIO.output(led1g,GPIO.HIGH)
+            buzz.set_led1green()
             break
         if cv2.waitKey(1) & 0xFF == 27:
             break
@@ -164,13 +170,13 @@ while True:
     #print(pred)
     if pred>10:
         print("FINAL - MASK")
-        GPIO.output(led2g,GPIO.HIGH)
-        lcd.write_msg("Mask Detected")
+        # GPIO.output(led2g,GPIO.HIGH)
+        buzz.set_led2green()
     else:
         cv2.imwrite(os.path.join('/home/pi/Desktop/Integrate/',barcode_text+'.jpg'),frame)
         print("FINAL - NO MASK")
-        GPIO.output(led2r,GPIO.HIGH)
-        lcd.write_warning("No Mask Detected")
+        # GPIO.output(led2r,GPIO.HIGH)
+        buzz.set_led2red()
         #firebase_upload(barcode_text+'.jpg')
         
         
@@ -221,12 +227,12 @@ while True:
     #print('Threshold- ',threshold)
     if(avg_temp>threshold):
         print("Temperature- HIGH")
-        GPIO.output(led3r,GPIO.HIGH)
-        lcd.write_warning("Temp= "+str(avg_temp))   
+        # GPIO.output(led3r,GPIO.HIGH)
+        buzz.set_led3green()
     else:
         #print("Temperature- NORMAL")
-        GPIO.output(led3g,GPIO.HIGH)
-        lcd.write_msg("Temp= "+str(avg_temp)) 
+        # GPIO.output(led3g,GPIO.HIGH)
+        buzz.set_led3red()
     
     print(greetings[np.random.randint(0,4)])
     csv.write("{},{},{},{}\n".format(datetime.now(),barcode_text,name,avg_temp1))
@@ -238,6 +244,7 @@ while True:
     #upload(now,barcode_text,avg_temp)
     csv.flush()
     csv1.flush()
-    
+
+buzz.set_all_low()
 camera.release()
 cv2.destroyAllWindows()
